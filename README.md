@@ -5,7 +5,7 @@ Base on this tool, we can provide the service to run applications (e.g., Hadoop,
 
 ## Resource Management
 
-### Mesos
+1. Mesos
 
 Install Mesos manually
 
