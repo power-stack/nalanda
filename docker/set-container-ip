@@ -1,0 +1,30 @@
+#!/bin/bash
+
+function help() {
+  echo "Arguments list:"
+  echo "\$1: docker container name."
+  echo "\$2: device name on host, mac vlan will create bridge on it."
+  echo "\$3: container ip address."
+  echo "\$4: container ip router."
+}
+
+if [ $# -eq 0 ]; then
+  help
+  exit -1
+fi
+
+CONTAINER_NAME=$1
+#MACVLAN_DEV=$2
+HOST_DEV=$2
+CONTAINER_IP=$3
+ROUTER_IP=$4
+
+MACVLAN_DEV=$HOST_DEV-$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c6)
+CONTAINER_PID=`./docker-pid $CONTAINER_NAME`
+sudo ip link add $MACVLAN_DEV link $HOST_DEV type macvlan mode bridge
+sudo ip link set netns $CONTAINER_PID $MACVLAN_DEV
+sudo nsenter -t $CONTAINER_PID -n ip link set $MACVLAN_DEV up
+sudo nsenter -t $CONTAINER_PID -n ip route del default
+sudo nsenter -t $CONTAINER_PID -n ip addr add $CONTAINER_IP dev $MACVLAN_DEV
+sudo nsenter -t $CONTAINER_PID -n ip route add default via $ROUTER_IP dev $MACVLAN_DEV
+

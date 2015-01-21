@@ -1,0 +1,12 @@
+#!/bin/sh
+
+#sudo docker run -d -p 2888:2888 -p 3888:3888 -p 2181:2181 -v /home/nonroot/zookeeper/conf:/opt/zookeeper/conf -v /home/nonroot/zookeeper/1/data:/tmp/zookeeper --name zookeeper1 172.16.0.23:5000/stackbase/zookeeper:3.4.6
+sudo docker run -d -p 2889:2888 -p 3889:3888 -p 2182:2181 -v /home/nonroot/zookeeper/conf:/opt/zookeeper/conf -v /home/nonroot/zookeeper/2/data:/tmp/zookeeper --name zookeeper2 172.16.0.23:5000/stackbase/zookeeper:3.4.6
+sudo docker run -d -p 2890:2888 -p 3890:3888 -p 2183:2181 -v /home/nonroot/zookeeper/conf:/opt/zookeeper/conf -v /home/nonroot/zookeeper/3/data:/tmp/zookeeper --name zookeeper3 172.16.0.23:5000/stackbase/zookeeper:3.4.6
+
+#sudo ip link add eth0m1 link eth0 type macvlan mode bridge
+#sudo ip link set netns $(./docker-pid zookeeper1) eth0m1
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip link set eth0m1 up
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip route del default
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip addr add 172.16.0.47/16 dev eth0m1
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip route add default via 172.16.0.21 dev eth0m1
