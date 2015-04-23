@@ -1,0 +1,43 @@
+#!/bin/bash
+set +x
+#INTERFACE='eth0'
+echo "Arguments list:"
+echo "\$1: Zookeeper node number, default is 3"
+
+NODE_COUNT=${1:-3}
+current_dir=$(pwd)
+
+# Run zookeeper cluster
+rm -rf ./zookeeper/conf
+mkdir -p ./zookeeper/conf
+for (( i=1; i<=$NODE_COUNT; i++ ))
+do
+  port1=$(expr 2887 + $i)
+  port2=$(expr 3887 + $i)
+  port3=$(expr 2180 + $i)
+  mkdir -p ./zookeeper/data/$i
+  sudo docker rm -f zookeeper_$i
+  sudo docker run -d -e ZOO_ID=$i -p $port1:2888 -p $port2:3888 -p $port3:2181 -v $current_dir/zookeeper/data/$i:/var/lib/zookeeper -v $current_dir/zookeeper/conf:/opt/zookeeper/conf --name zookeeper_$i zookeeper:3.4.6
+done
+
+#local_ip="$(ifconfig $INTERFACE | grep 'inet ' | awk '{print $2}')"
+# Generate zookeeper conf
+/bin/cp -f ../zookeeper/conf/zoo.cfg ./zookeeper/conf/zoo.cfg.tmp
+for (( i=1; i<=$NODE_COUNT; i++ ))
+do
+  #port1=$(expr 2887 + $i)
+  #port2=$(expr 3887 + $i)
+  #port3=$(expr 2180 + $i)
+  # get container ip
+  container_ip=$(./docker-ip zookeeper_${i})
+  echo "server.$i=$container_ip:2888:3888" >> ./zookeeper/conf/zoo.cfg.tmp
+done
+mv ./zookeeper/conf/zoo.cfg.tmp ./zookeeper/conf/zoo.cfg
+
+# TODO enable docker SDN via macvlan or OVS
+#sudo ip link add eth0m1 link eth0 type macvlan mode bridge
+#sudo ip link set netns $(./docker-pid zookeeper1) eth0m1
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip link set eth0m1 up
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip route del default
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip addr add 172.16.0.47/16 dev eth0m1
+#sudo nsenter -t $(docker-pid zookeeper1) -n ip route add default via 172.16.0.21 dev eth0m1
