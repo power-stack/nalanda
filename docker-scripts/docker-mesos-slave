@@ -1,0 +1,40 @@
+#!/bin/bash
+set +x
+echo "Arguments list:"
+echo "\$1: Zookeeper cluster, default is zoo1:2181,zoo2:2181,zoo3:2181"
+echo "\$2: Ethernet interface which is used to communicate with the mesos on host, default is 'eth0'"
+echo "\$3: Ethernet interface which is used to assign IP address on container, default is 'eth1'"
+echo "\$4: Docker image name, default: mesos:0.0.1"
+echo "\$5: IP address of contatiner, default: dhcp"
+
+source ./utils
+
+ZOO_CLUSTER=${1:-zoo1:2181,zoo2:2181,zoo3:2181}
+HOST_INTERFACE=${2:-eth0}
+CONTAINER_IF=${3:-eth1}
+IMAGE_NAME=${4:-mesos:0.0.1}
+CONTAINER_IP=${5:-dhcp}
+current_dir=$(pwd)
+
+#echo "57345 61000" > /proc/sys/net/ipv4/ip_local_port_range
+
+ZOO_CLUSTER=${1:-zoo1:2181,zoo2:2181,zoo3:2181}
+INTERFACE=${2:-eth0}
+current_dir=$(pwd)
+
+local_ip="$(ifconfig $INTERFACE | grep 'inet ' | awk '{print $2}')"
+SDN_IP=$(get_new_sdn_ip $CONTAINER_IP 1)
+echo "SDN_IP: $SDN_IP"
+sudo docker rm -f mesos_slave
+sudo ./pipework $HOST_INTERFACE -i $CONTAINER_IF $(docker run  -d --privileged \
+  -v /sys:/sys \
+  -v /usr/bin/docker:/usr/bin/docker:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
+  -e MESOS_HOSTNAME=$local_ip \
+  -e MESOS_MASTER=zk://$ZOO_CLUSTER/mesos \
+  -e MESOS_DOCKER_STOP_TIMEOUT=10secs \
+  -e MESOS_CONTAINERIZERS=docker,mesos \
+  -e CONTAINER_IF=$CONTAINER_IF \
+  -p 5051:5051 --name mesos_slave $IMAGE_NAME \
+  mesos-slave) $SDN_IP
