@@ -255,7 +255,8 @@ MTU=$(ip link show $IFNAME | awk '{print $5}')
 }
 
 ip link set $GUEST_IFNAME netns $NSPID
-#ip netns exec $NSPID ip link delete $CONTAINER_IFNAME
+ip netns exec $NSPID ip addr flush dev $CONTAINER_IFNAME > /dev/null 2>&1
+ip netns exec $NSPID ip link delete $CONTAINER_IFNAME > /dev/null 2>&1
 ip netns exec $NSPID ip link set $GUEST_IFNAME name $CONTAINER_IFNAME
 [ "$MACADDR" ] && ip netns exec $NSPID ip link set dev $CONTAINER_IFNAME address $MACADDR
 if [ "$IPADDR" = "dhcp" ]

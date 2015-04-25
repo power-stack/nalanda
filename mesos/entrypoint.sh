@@ -18,7 +18,7 @@ if [[ -n $CONTAINER_IF ]]; then
     sleep 2
   done
   echo "Container IP addr from SDN: $container_ip .."
-  export MESOS_IP=$(echo "$container_ip" |awk 'BEGIN { FS = "/" }; { print $1 }')
+  export MESOS_IP="${container_ip%%/*}"
 fi;
 
 echo "That was a good nap. Now to work..."
