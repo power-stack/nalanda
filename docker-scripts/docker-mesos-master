@@ -5,11 +5,13 @@ echo "\$1: Mesos master node number, default is 3"
 echo "\$2: Zookeeper cluster, default is zoo1:2181,zoo2:2181,zoo3:2181"
 echo "\$3: Ethernet interface which is used to communicate with the mesos on host, default is 'eth0'"
 echo "\$4: Ethernet interface which is used to assign IP address on container, default is 'eth1'"
+echo "\$5: Docker image name, default: mesos:0.0.1"
 
 NODE_COUNT=${1:-3}
 ZOO_CLUSTER=${2:-zoo1:2181,zoo2:2181,zoo3:2181}
 HOST_INTERFACE=${3:-eth0}
 CONTAINER_IF=${4:-eth1}
+IMAGE_NAME=${5:-mesos:0.0.1}
 current_dir=$(pwd)
 
 quorum=$(expr 1 + $NODE_COUNT / 2)
@@ -28,7 +30,7 @@ do
     -e MESOS_REGISTRY_STORE_TIMEOUT=15secs \
     -e MESOS_CLUSTER=Nalanda \
     -e CONTAINER_IF=$CONTAINER_IF \
-    -p $port1:5050 --name mesos_master_$i mesos:0.0.1 \
+    -p $port1:5050 --name mesos_master_$i $IMAGE_NAME \
     mesos-master) dhcp
 done
 
