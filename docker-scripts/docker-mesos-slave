@@ -31,6 +31,8 @@ sudo ./pipework $HOST_INTERFACE -i $CONTAINER_IF $(docker run  -d --privileged \
   -v /usr/bin/docker:/usr/bin/docker:ro \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
+  -v /lib64/libpthread.so.0:/lib/libpthread.so.0:ro -v /lib64/libsqlite3.so.0:/lib/libsqlite3.so.0:ro \
+  -v /lib64/libudev.so.1:/lib/libudev.so.1:ro \
   -e MESOS_HOSTNAME=$local_ip \
   -e MESOS_MASTER=zk://$ZOO_CLUSTER/mesos \
   -e MESOS_DOCKER_STOP_TIMEOUT=10secs \
