@@ -51,6 +51,8 @@ CONTAINER_ID=`sudo docker run -d \
     -e MARATHON_ZK=zk://$ZOO_CLUSTER/marathon \
     -e MARATHON_SSL_KEYSTORE_PATH=/tmp/ssl/marathon.jks \
     -e MARATHON_SSL_KEYSTORE_PASSWORD=$MARATHON_JKS_PASSWORD \
+    -e MARATHON_HTTP_PORT=8080 \
+    -e MARATHON_HTTPS_PORT=8443 \
     -e CONTAINER_IF=$CONTAINER_IF \
     --name marathon_$i $IMAGE_NAME \
     marathon` 

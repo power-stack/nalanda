@@ -37,6 +37,7 @@ sudo ./pipework $HOST_INTERFACE -i $CONTAINER_IF $(docker run  -d --privileged \
   -e MESOS_MASTER=zk://$ZOO_CLUSTER/mesos \
   -e MESOS_DOCKER_STOP_TIMEOUT=10secs \
   -e MESOS_CONTAINERIZERS=docker,mesos \
+  -e MESOS_PORT=5051 \
   -e CONTAINER_IF=$CONTAINER_IF \
   -p 5051:5051 --name mesos_slave $IMAGE_NAME \
   mesos-slave) $SDN_IP

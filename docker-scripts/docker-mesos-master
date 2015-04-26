@@ -44,6 +44,7 @@ CONTAINER_ID=`sudo docker run -d \
     -e MESOS_ZK_SESSION_TIMEOUT=30secs \
     -e MESOS_REGISTRY_STORE_TIMEOUT=15secs \
     -e MESOS_CLUSTER=Nalanda \
+    -e MESOS_PORT=5050 \
     -e CONTAINER_IF=$CONTAINER_IF \
     --name mesos_master_$i $IMAGE_NAME \
     mesos-master` 
