@@ -7,10 +7,9 @@ MAINTAINER gengjh
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF && \
     DISTRO=debian && \
     CODENAME=wheezy && \
-    echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main \n \
-deb http://ftp.de.debian.org/${DISTRO} ${CODENAME} main" | tee /etc/apt/sources.list.d/mesosphere.list && \
+    echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | tee /etc/apt/sources.list.d/mesosphere.list && \
     DEBIAN_FRONTEND=noninteractive apt-get -y update && \
-    apt-get -y install -yq --no-install-recommends mesos marathon chronos unzip libsasl2-modules && \
+    apt-get -y install -yq --no-install-recommends mesos marathon chronos unzip libsasl2-modules supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     rm /etc/mesos/zk && \
@@ -20,6 +19,8 @@ deb http://ftp.de.debian.org/${DISTRO} ${CODENAME} main" | tee /etc/apt/sources.
 RUN sed 's/^\(hosts:[\ ]*\)\(files\)\ \(dns\)$/\1\3 \2/' -i /etc/nsswitch.conf
 
 ADD entrypoint.sh /entrypoint.sh
+ADD supervisord.d/mesos.conf /tmp/
+ADD supervisord.d/supervisord.conf /etc/supervisor/
 RUN chmod a+x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

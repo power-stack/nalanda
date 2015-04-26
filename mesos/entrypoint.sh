@@ -22,4 +22,7 @@ if [[ -n $CONTAINER_IF ]]; then
 fi;
 
 echo "That was a good nap. Now to work..."
-exec "$@"
+mkdir -p /etc/supervisor/conf.d/
+sed "s#COMMAND#$@#g;" /tmp/mesos.conf > /etc/supervisor/conf.d/mesos.conf
+cat /etc/supervisor/conf.d/mesos.conf
+supervisord -c /etc/supervisor/supervisord.conf -n
