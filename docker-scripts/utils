@@ -20,3 +20,30 @@ function get_new_sdn_ip() {
   fi
   echo "$SDN_IP"
 }
+
+function generate_ssl_certificate_jks() {
+  LOCATION=$1
+  NAME=$2
+  PASSWORD=$3
+  # Assume we are using same password when create the keystore
+  export KEY_PASSWORD=$PASSWORD
+  export PKCS_PASSWORD=$PASSWORD
+  export JKS_PASSWORD=$PASSWORD
+  mkdir -p $LOCATION
+  openssl genrsa -des3 -out ${LOCATION}/${NAME}.key -passout "env:KEY_PASSWORD"
+  openssl req -new -x509 -key ${LOCATION}/${NAME}.key \
+    -passin "env:KEY_PASSWORD" \
+    -out ${LOCATION}/${NAME}-self-signed.pem
+  openssl pkcs12 -inkey ${LOCATION}/${NAME}.key \
+    -passin "env:KEY_PASSWORD" \
+    -name ${NAME} \
+    -in ${LOCATION}/${NAME}-self-signed.pem \
+    -password "env:PKCS_PASSWORD" \
+    -export -out ${LOCATION}/${NAME}.pkcs12
+  keytool -importkeystore -srckeystore ${LOCATION}/${NAME}.pkcs12 \
+    -srcalias ${NAME} \
+    -srcstorepass $PKCS_PASSWORD \
+    -srcstoretype PKCS12 \
+    -destkeystore ${LOCATION}/${NAME}.jks \
+    -deststorepass $JKS_PASSWORD
+}
