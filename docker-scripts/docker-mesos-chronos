@@ -4,9 +4,9 @@
 current_dir=$(pwd)
 
 echo "Arguments list:"
-echo "\$1: Marathon node number, default is 3"
+echo "\$1: Chronos node number, default is 3"
 echo "\$2: Zookeeper cluster, default is zoo1:2181,zoo2:2181,zoo3:2181"
-echo "\$3: Ethernet interface which is used to communicate with the marathon on host, default is 'eth0'"
+echo "\$3: Ethernet interface which is used to communicate with the chronos on host, default is 'eth0'"
 echo "\$4: Ethernet interface which is used to assign IP address on container, default is 'eth1'"
 echo "\$5: Docker image name, default: mesos:0.0.1"
 echo "\$6: IP address of contatiner, default: dhcp"
@@ -24,7 +24,7 @@ NALANDA_JKS_PASSWORD=${7:-passw0rd}
 
 local_ip="$(ifconfig $INTERFACE | grep 'inet ' | awk '{print $2}')"
 if [ -f $current_dir/ssl/nalanda.jks ]; then
-  echo "Find $current_dir/ssl/nalanda.jks, will use it."
+  echo "Find $current_dir/ssl/chronos.jks, will use it."
 else
   echo "Generate new SLL certificate!!"
   generate_ssl_certificate_jks $current_dir/ssl/ "nalanda" "$NALANDA_JKS_PASSWORD"
@@ -34,33 +34,37 @@ for (( i=1; i<=$NODE_COUNT; i++ ))
 do
   SDN_IP=$(get_new_sdn_ip $CONTAINER_IP $i)
   echo "SDN_IP: $SDN_IP"
-  sudo docker rm -f marathon_$i
+  sudo docker rm -f chronos_$i
   echo "CONTAINER_IF=$CONTAINER_IF
 current_dir=$current_dir
-NALANDA_JKS_PASSWORD=$NALANDA_JKS_PASSWORD
+CHRONOS_JKS_PASSWORD=$CHRONOS_JKS_PASSWORD
 ZOO_CLUSTER=$ZOO_CLUSTER
 quorum=$quorum
 i=$i
 IMAGE_NAME=$IMAGE_NAME
 HOST_INTERFACE=$HOST_INTERFACE
-SDN_IP=$SDN_IP" > marathon_${i}_temp.sh
+SDN_IP=$SDN_IP" > chronos_${i}_temp.sh
+  rm -rf $current_dir/chronos/conf/chronos_${i}
+  mkdir -p $current_dir/chronos/conf/chronos_${i}
+  echo "zk://$ZOO_CLUSTER/mesos" >$current_dir/chronos/conf/chronos_${i}/master
+  echo "$ZOO_CLUSTER" > $current_dir/chronos/conf/chronos_${i}/zk_hosts
+  echo "/chronos/state" > $current_dir/chronos/conf/chronos_${i}/zk_path
+  echo "/tmp/ssl/nalanda.jks" > $current_dir/chronos/conf/chronos_${i}/ssl_keystore_path
+  echo "$NALANDA_JKS_PASSWORD" > $current_dir/chronos/conf/chronos_${i}/ssl_keystore_password
+  echo "8080" > $current_dir/chronos/conf/chronos_${i}/http_port
+  echo "8443" > $current_dir/chronos/conf/chronos_${i}/https_port
   echo '
 CONTAINER_ID=`sudo docker run -d \
     -v $current_dir/ssl:/tmp/ssl \
-    -e MARATHON_MASTER=zk://$ZOO_CLUSTER/mesos \
-    -e MARATHON_ZK=zk://$ZOO_CLUSTER/marathon \
-    -e MARATHON_SSL_KEYSTORE_PATH=/tmp/ssl/marathon.jks \
-    -e MARATHON_SSL_KEYSTORE_PASSWORD=$NALANDA_JKS_PASSWORD \
-    -e MARATHON_HTTP_PORT=8080 \
-    -e MARATHON_HTTPS_PORT=8443 \
+    -v $current_dir/chronos/conf/chronos_${i}:/etc/chronos/conf \
     -e CONTAINER_IF=$CONTAINER_IF \
-    --name marathon_$i $IMAGE_NAME \
-    marathon` 
+    --name chronos_$i $IMAGE_NAME \
+    chronos` 
 sudo ./pipework $HOST_INTERFACE -i $CONTAINER_IF \
-    $CONTAINER_ID $SDN_IP' >> marathon_${i}_temp.sh
+    $CONTAINER_ID $SDN_IP' >> chronos_${i}_temp.sh
 done
 
 # Start docker container in parallel
-ls marathon_*_temp.sh |xargs -P $NODE_COUNT -n 1 sh
-rm -f marathon_*_temp.sh
+ls chronos_*_temp.sh |xargs -P $NODE_COUNT -n 1 sh
+rm -f chronos_*_temp.sh
 
