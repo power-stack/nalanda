@@ -19,6 +19,9 @@ if [[ -n $CONTAINER_IF ]]; then
   done
   echo "Container IP addr from SDN: $container_ip .."
   export MESOS_IP="${container_ip%%/*}"
+  export MESOS_HOSTNAME=$MESOS_IP
+  export MARATHON_HOSTNAME=$MESOS_IP
+  echo "$MESOS_IP" > /etc/chronos/conf/hostname  
 fi;
 
 echo "That was a good nap. Now to work..."
