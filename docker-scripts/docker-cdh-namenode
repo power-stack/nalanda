@@ -1,0 +1,27 @@
+#!/bin/bash
+#set -x 
+echo "Arguments list:"
+echo "\$1: Ethernet interface which is used to communicate with the datanode on host, default is 'eth0'"
+echo "\$2: Ethernet interface which is used to assign IP address on container, default is 'eth1'"
+echo "\$3: Docker image name, default: hadoop-cdh5-hdfs-datanode:0.0.1"
+echo "\$4: IP address of contatiner, default: dhcp"
+
+source ./utils
+
+HOST_INTERFACE=${1:-eth0}
+CONTAINER_IF=${2:-eth1}
+IMAGE_NAME=${3:-hadoop-cdh5-hdfs-namenode:0.0.1}
+CONTAINER_IP=${4:-dhcp}
+current_dir=$(pwd)
+
+script_prefix="hdfs_namenode"
+
+local_ip="$(ifconfig $HOST_INTERFACE | grep 'inet ' | awk '{print $2}')"
+container_name=${script_prefix}
+sudo docker rm -f $container_name
+sudo ./pipework $HOST_INTERFACE -i $CONTAINER_IF \
+    $(docker run -d \
+    -p 8020:8020 -p 50070:50070 \
+    -e CONTAINER_IF=$CONTAINER_IF \
+    --name $container_name $IMAGE_NAME) $CONTAINER_IP
+

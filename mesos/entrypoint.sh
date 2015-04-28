@@ -22,6 +22,15 @@ if [[ -n $CONTAINER_IF ]]; then
   export MESOS_HOSTNAME=$MESOS_IP
   export MARATHON_HOSTNAME=$MESOS_IP
   echo "$MESOS_IP" > /etc/chronos/conf/hostname  
+  echo "$MESOS_IP  $HOSTNAME
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters" > /etc/hosts
+
+  cat /etc/hosts
 fi;
 
 echo "That was a good nap. Now to work..."

@@ -1,0 +1,62 @@
+#!/bin/bash
+#set -x 
+echo "Arguments list:"
+echo "\$1: Hadoop HDFS namdenode host, default: localhost."
+echo "\$2: Hadoop HDFS namdenode FS port, default: 8020."
+echo "\$3: Hadoop HDFS datanode number, default is 3"
+echo "\$4: Ethernet interface which is used to communicate with the datanode on host, default is 'eth0'"
+echo "\$5: Ethernet interface which is used to assign IP address on container, default is 'eth1'"
+echo "\$6: Docker image name, default: hadoop-cdh5-hdfs-datanode:0.0.1"
+echo "\$7: IP address of contatiner, default: dhcp"
+
+source ./utils
+
+HDFS_NN_SERVER=${1:-localhost}
+HDFS_NN_PORT=${2:-8020}
+CONTAINER_IP=${3:-dhcp}
+NODE_COUNT=${4:-3}
+HOST_INTERFACE=${5:-eth0}
+CONTAINER_IF=${6:-eth1}
+IMAGE_NAME=${7:-hadoop-cdh5-hdfs-datanode:0.0.1}
+current_dir=$(pwd)
+
+script_prefix="hdfs_datanode"
+
+local_ip="$(ifconfig $INTERFACE | grep 'inet ' | awk '{print $2}')"
+for (( i=1; i<=$NODE_COUNT; i++ ))
+do
+  port1=$(expr 50010 + $i - 1)
+  port2=$(expr 50020 + $i - 1)
+  port3=$(expr 50075 + $i - 1)
+  SDN_IP=$(get_new_sdn_ip $CONTAINER_IP $i)
+  script_file=${script_prefix}_${i}_temp.sh
+  container_name=${script_prefix}_$i
+  echo "SDN_IP: $SDN_IP"
+  sudo docker rm -f $container_name
+  echo "CONTAINER_IF=$CONTAINER_IF
+i=$i
+IMAGE_NAME=$IMAGE_NAME
+HOST_INTERFACE=$HOST_INTERFACE
+SDN_IP=$SDN_IP
+port1=$port1
+port2=$port2
+port3=$port3
+HDFS_NN_SERVER=$HDFS_NN_SERVER
+HDFS_NN_PORT=$HDFS_NN_PORT
+container_name=$container_name" > $script_file
+  echo '
+CONTAINER_ID=`sudo docker run -d \
+    -p $port1:50010 -p $port2:50020 -p $port3:50075 \
+    -e HDFSNAMENODERPC_SERVICE_HOST=$HDFS_NN_SERVER \
+    -e HDFSNAMENODERPC_SERVICE_PORT=$HDFS_NN_PORT \
+    -e CONTAINER_IF=$CONTAINER_IF \
+    --hostname=${SDN_IP%%/*} \
+    --name $container_name $IMAGE_NAME`
+sudo ./pipework $HOST_INTERFACE -i $CONTAINER_IF \
+    $CONTAINER_ID $SDN_IP' >> $script_file
+done
+
+# Start docker container in parallel
+ls ${script_prefix}*_temp.sh |xargs -P $NODE_COUNT -n 1 sh
+rm -f ${script_prefix}*_temp.sh
+

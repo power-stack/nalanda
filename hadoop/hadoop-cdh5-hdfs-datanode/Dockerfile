@@ -1,8 +1,5 @@
-FROM genggjh/hadoop-cdh5-base:0.1
-MAINTAINER David Geng <genggjh@hotmail.com>
-
-ENV http_proxy http://9.115.78.100:8085
-ENV https_proxy http://9.115.78.100:8085
+FROM hadoop-cdh5-base:0.0.1
+MAINTAINER David Geng <david.geng@idevops.net>
 
 # Install HDFS datanode
 RUN yum clean all; yum install -y hadoop-yarn-nodemanager hadoop-hdfs-datanode hadoop-mapreduce

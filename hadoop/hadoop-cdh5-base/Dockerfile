@@ -1,8 +1,5 @@
 FROM centos:6.6
-MAINTAINER David Geng <genggjh@hotmail.com>
-
-ENV http_proxy http://9.115.78.100:8085
-ENV https_proxy http://9.115.78.100:8085
+MAINTAINER David Geng <david.geng@idevops.net>
 
 # Add CDH repo
 ADD files/hadoop-cdh5.repo /etc/yum.repos.d/
@@ -13,7 +10,10 @@ RUN yum clean all
 RUN yum install -y java-1.7.0-openjdk
 
 # INSTALL SUPERVISORD
-RUN yum install -y python-setuptools \
+#RUN yum install -y python-setuptools \
+# Hack to get the latest version of setuptool
+# See https://github.com/puphpet/puphpet/issues/1492
+RUN curl https://bootstrap.pypa.io/ez_setup.py | python \
 && easy_install pip \
 && pip install supervisor \
 && mkdir /etc/supervisord.d/ \
