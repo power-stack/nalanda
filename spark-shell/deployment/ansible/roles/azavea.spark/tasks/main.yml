@@ -1,0 +1,18 @@
+---
+- name: Configure Cloudera APT key
+  apt_key: url="http://archive.cloudera.com/cdh5/ubuntu/{{ ansible_distribution_release }}/amd64/cdh/archive.key"
+           state=present
+
+- name: Configure the Cloudera APT repositories
+  apt_repository: repo="deb [arch=amd64] http://archive.cloudera.com/cdh5/ubuntu/{{ ansible_distribution_release }}/amd64/cdh {{ ansible_distribution_release }}-{{ spark_cloudera_distribution }} contrib"
+                  state=present
+
+- name: Pin Cloudera APT repositories
+  template: src=cdh5.j2 dest=/etc/apt/preferences.d/cdh5
+
+- name: Install Spark
+  apt: pkg=spark-core={{ spark_version }} state=present
+
+- name: Configure Spark environment
+  template: src=spark-env.sh.j2
+            dest=/etc/spark/conf/spark-env.sh

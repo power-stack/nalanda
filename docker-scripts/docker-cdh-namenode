@@ -1,9 +1,9 @@
 #!/bin/bash
 #set -x 
 echo "Arguments list:"
-echo "\$1: Ethernet interface which is used to communicate with the datanode on host, default is 'eth0'"
+echo "\$1: Ethernet interface which is used to communicate with the namenode on host, default is 'eth0'"
 echo "\$2: Ethernet interface which is used to assign IP address on container, default is 'eth1'"
-echo "\$3: Docker image name, default: hadoop-cdh5-hdfs-datanode:0.0.1"
+echo "\$3: Docker image name, default: hadoop-cdh5-hdfs-namenode:0.0.1"
 echo "\$4: IP address of contatiner, default: dhcp"
 
 source ./utils

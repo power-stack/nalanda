@@ -1,0 +1,10 @@
+---
+mesos_version: "0.21.*"
+mesos_conf_dir: "/etc/mesos"
+mesos_leader: False
+
+mesos_leader_conf_dir: "/etc/mesos-master"
+mesos_leader_cluster: "mesos-cluster"
+mesos_leader_quorum: 2
+
+mesos_follower_conf_dir: "/etc/mesos-slave"

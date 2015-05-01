@@ -1,0 +1,23 @@
+---
+- hosts: all
+  sudo: yes
+  vars:
+    vagrant_ip: 192.168.33.10
+    spark_version: 1.3.0-cdh5.4.0
+    spark_bin_url: http://archive.cloudera.com/cdh5/cdh/5/spark-{{ spark_version }}.tar.gz
+    hdfs_fs_host: "{{ lookup('env', 'HDFS_FS_HOST') }}"
+    hdfs_http_host: "{{ lookup('env', 'HDFS_HTTP_HOST') }}"
+    mesos_native_lib: '/usr/local/lib/libmesos.so'
+
+  roles:
+    - { role: azavea.spark, spark_version: '{{ spark_version }}', spark_env_extras: { MESOS_NATIVE_JAVA_LIBRARY: '{{ mesos_native_lib }}'} }
+    - { role: azavea.mesos, mesos_version: '0.22.0' }
+
+  tasks:
+    - name: Install Hadoop Client
+      apt: name=hadoop-client state=build-dep
+
+    - name: Setup Spark shell env
+      shell: files/setup-spark-env.sh '{{ hdfs_fs_host }}' '{{ hdfs_http_host }}' '{{ spark_version }}' '{{ mesos_native_lib }}' '{{ spark_bin_url }}'
+      tags:
+        - spark

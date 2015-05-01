@@ -1,0 +1,4 @@
+azavea.spark,0.3.0
+azavea.mesos,0.2.1
+azavea.java,0.2.1
+AiiR42.cassandra,v1.0.2

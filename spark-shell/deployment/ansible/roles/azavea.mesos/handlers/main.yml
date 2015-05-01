@@ -1,0 +1,8 @@
+---
+- name: Restart Mesos leader
+  service: name=mesos-master state=restarted
+  when: mesos_leader
+
+- name: Restart Mesos follower
+  service: name=mesos-slave state=restarted
+  when: not mesos_leader
