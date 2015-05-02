@@ -12,6 +12,7 @@ else
   wget -O spark-${SPARK_BIN_VERSION}.tgz $SPARK_BIN_DOWNLOAD_URL && tar xzf spark-${SPARK_BIN_VERSION}.tgz
 fi
 /bin/cp -f spark-${SPARK_BIN_VERSION}/conf/spark-env.sh.template spark-${SPARK_BIN_VERSION}/conf/spark-env.sh
+/bin/cp -f spark-${SPARK_BIN_VERSION}/conf/spark-defaults.conf.template spark-${SPARK_BIN_VERSION}/conf/spark-defaults.conf
 
 # Upload spark into hdfs
 HDFS_PATH="mesos-executor"
@@ -21,9 +22,11 @@ UPLOAD_URL=$(curl --silent --output /dev/null -X PUT "http://$HDFS_HTTP_HOST/web
 echo "redirect to $UPLOAD_URL url"
 curl -i -X PUT -T ./spark-${SPARK_BIN_VERSION}.tgz "${UPLOAD_URL}"
 
-echo "export MESOS_NATIVE_JAVA_LIBRARY=$MESOS_NATIVE_JAVA_LIBRARY
-export SPARK_EXECUTOR_URI="hdfs://$HDFS_FS_HOST/$HDFS_PATH/spark-${SPARK_BIN_VERSION}.tgz"
-export MASTER=$SPARK_MASTER" >> spark-${SPARK_BIN_VERSION}/conf/spark-env.sh
+echo "MESOS_NATIVE_JAVA_LIBRARY=$MESOS_NATIVE_JAVA_LIBRARY
+SPARK_EXECUTOR_URI=hdfs://$HDFS_FS_HOST/$HDFS_PATH/spark-${SPARK_BIN_VERSION}.tgz
+MASTER=$SPARK_MASTER" >> spark-${SPARK_BIN_VERSION}/conf/spark-env.sh
+
+echo "spark.executor.uri hdfs://$HDFS_FS_HOST/$HDFS_PATH/spark-${SPARK_BIN_VERSION}.tgz" > spark-${SPARK_BIN_VERSION}/conf/spark-defaults.conf
 
 #spark-${SPARK_BIN_VERSION}/bin/spark-shell --master $SPARK_MASTER
 tailf /var/log/faillog

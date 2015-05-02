@@ -34,9 +34,9 @@ ENV MESOS_NATIVE_LIB /usr/lib/libmesos.so
 
 WORKDIR /tmp/spark
 #RUN wget -O spark-${SPARK_BIN_VERSION}.tgz $SPARK_BIN_DOWNLOAD_URL && tar xzf spark-${SPARK_BIN_VERSION}.tgz
-ADD deployment/ansible/files/setup-spark-env.sh /tmp/spark/
-COPY spark-${SPARK_BIN_VERSION}.tgz /tmp/spark/
-RUN tar xzf spark-${SPARK_BIN_VERSION}.tgz
+ADD spark-${SPARK_BIN_VERSION}.tgz ./
+COPY spark-${SPARK_BIN_VERSION}.tgz ./
+ADD deployment/ansible/files/setup-spark-env.sh ./
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod a+x /entrypoint.sh
 
