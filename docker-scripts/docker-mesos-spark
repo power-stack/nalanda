@@ -3,7 +3,7 @@ set -x
 echo "Arguments list:"
 echo "\$1: Ethernet interface which is used to communicate with the spark on host, default is 'eth0'"
 echo "\$2: Ethernet interface which is used to assign IP address on container, default is 'eth1'"
-echo "\$3: Docker image name, default: spark-shell:0.0.1"
+echo "\$3: Docker image name, default: spark:0.0.1"
 echo "\$4: IP address of contatiner, default: dhcp"
 echo "\$5: HDFS FS host, default: hdfsnamenode:8020"
 echo "\$6: HDFS HTTP host, default: hdfsnamenode:50070"
@@ -12,14 +12,14 @@ source ./utils
 
 HOST_INTERFACE=${1:-eth0}
 CONTAINER_IF=${2:-eth1}
-IMAGE_NAME=${3:-spark-shell:0.0.1}
+IMAGE_NAME=${3:-spark:0.0.1}
 CONTAINER_IP=${4:-dhcp}
 HDFS_FS_HOST=${5:-hdfsnamenode:8020}
 HDFS_HTTP_HOST=${6:-hdfsnamenode:50070}
 SPARK_MASTER=${7:-mesos://zk://zoo1:2181/mesos}
 current_dir=$(pwd)
 
-script_prefix="spark-shell"
+script_prefix="spark"
 
 local_ip="$(ifconfig $HOST_INTERFACE | grep 'inet ' | awk '{print $2}')"
 container_name=${script_prefix}

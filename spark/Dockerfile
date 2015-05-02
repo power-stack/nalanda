@@ -26,13 +26,17 @@ RUN sed 's/^\(hosts:[\ ]*\)\(files\)\ \(dns\)$/\1\3 \2/' -i /etc/nsswitch.conf
 
 ENV HDFS_FS_HOST hdfsnamenode:8020
 ENV HDFS_HTTP_HOST hdfsnamenode:50070
-ENV SPARK_BIN_VERSION 1.3.1-bin-cdh4
-ENV SPARK_BIN_DOWNLOAD_URL http://d3kbcqa49mib13.cloudfront.net/spark-${SPARK_BIN_VERSION}.tgz
+#ENV SPARK_BIN_VERSION 1.3.1-bin-cdh4
+ENV SPARK_BIN_VERSION 1.3.1-bin-cdh5.4-hadoop-2.6.0
+#ENV SPARK_BIN_DOWNLOAD_URL http://d3kbcqa49mib13.cloudfront.net/spark-${SPARK_BIN_VERSION}.tgz
+ENV SPARK_BIN_DOWNLOAD_URL http://archive.cloudera.com/cdh5/cdh/5/spark-${SPARK_BIN_VERSION}.tar.gz
 ENV MESOS_NATIVE_LIB /usr/lib/libmesos.so
 
 WORKDIR /tmp/spark
-RUN wget -O spark-${SPARK_BIN_VERSION}.tgz $SPARK_BIN_DOWNLOAD_URL && tar xzf spark-${SPARK_BIN_VERSION}.tgz
+#RUN wget -O spark-${SPARK_BIN_VERSION}.tgz $SPARK_BIN_DOWNLOAD_URL && tar xzf spark-${SPARK_BIN_VERSION}.tgz
 ADD deployment/ansible/files/setup-spark-env.sh /tmp/spark/
+COPY spark-${SPARK_BIN_VERSION}.tgz /tmp/spark/
+RUN tar xzf spark-${SPARK_BIN_VERSION}.tgz
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod a+x /entrypoint.sh
 
