@@ -36,6 +36,7 @@ sudo ./pipework $HOST_INTERFACE -i $CONTAINER_IF $(docker run  -d --privileged \
   -e MESOS_HOSTNAME=$local_ip \
   -e MESOS_MASTER=zk://$ZOO_CLUSTER/mesos \
   -e MESOS_DOCKER_STOP_TIMEOUT=10secs \
+  -e MESOS_EXECUTOR_REGISTRATION_TIMEOUT=5mins \
   -e MESOS_CONTAINERIZERS=docker,mesos \
   -e MESOS_PORT=5051 \
   -e CONTAINER_IF=$CONTAINER_IF \
