@@ -1,3 +1,5 @@
+# This repo is deprecated, all the codes are moved into org [nalands](https://github.com/nalandas).
+
 # Resource Management in Data Center
 
 Our purpose is provide an integration tool to manage the resource across entire datacenter and cloud environments, include CPU, memory, storage, and other compute resources.
